@@ -1,0 +1,23 @@
+{
+    "version": 6,
+    "cmakeMinimumRequired": {
+        "major": 3,
+        "minor": 29,
+        "patch": 0
+    },
+    "configurePresets": [
+        {
+            "name": "x64",
+            "displayName": "x64 basis MSVC 2022",
+            "generator": "Visual Studio 17 2022",
+            "binaryDir": "${sourceDir}/build/vc17",
+            "architecture": "x64"
+        },
+        {
+            "name": "vc17",
+            "displayName": "MSVC 17 2022",
+            "description": "MSVC Build Configuration",
+            "inherits": "x64"
+        }
+    ]
+}
