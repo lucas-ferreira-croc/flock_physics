@@ -52,6 +52,10 @@ public:
     void Pan(const vec2 deltaPan, float deltaTime);
 
     void Update(float deltaTime);
+
+    void SetTarget(const vec3& newTarget);
+    void SetZoom(float zoom);
+    void SetRotation(const vec2& rotation);
 protected:
     vec3 target;
     vec2 panSpeed;
@@ -65,5 +69,8 @@ protected:
     vec2 currentRotation;
     float ClampAngle(float angle, float min, float max);
 };
+
+Camera CreatePerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane);
+Camera CreateOrtographic(float width, float height, float nearPlane, float farPlane);
 
 #endif

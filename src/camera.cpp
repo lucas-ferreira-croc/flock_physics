@@ -78,12 +78,12 @@ bool Camera::IsPerspective()
 {
     return m_nProjectionMode == 0;
 }
+
 bool Camera::IsOrthoNormal()
 {
     vec3 right = vec3(m_matWorld._11, m_matWorld._12, m_matWorld._13);
     vec3 up = vec3(m_matWorld._21, m_matWorld._22, m_matWorld._23);
     vec3 forward = vec3(m_matWorld._31, m_matWorld._32, m_matWorld._33);
-    vec3 position = vec3(m_matWorld._41, m_matWorld._42, m_matWorld._43);
 
     if(!CMP(Dot(right, right), 1.0f) || 
        !CMP(Dot(up, up), 1.0f) ||
@@ -107,7 +107,6 @@ void Camera::OrthoNormalize()
     vec3 right = vec3(m_matWorld._11, m_matWorld._12, m_matWorld._13);
     vec3 up = vec3(m_matWorld._21, m_matWorld._22, m_matWorld._23);
     vec3 forward = vec3(m_matWorld._31, m_matWorld._32, m_matWorld._33);
-    vec3 position = vec3(m_matWorld._41, m_matWorld._42, m_matWorld._43);
 
     vec3 f = Normalized(forward);
     vec3 r = Normalized(Cross(up, f));
@@ -157,9 +156,12 @@ void Camera::Orthographic(float width, float height, float zNear, float zFar)
 {
     m_nNear = zNear;
     m_nFar = zFar;
+    m_nWidth = width;
+    m_nHeight = height;
+
     float halfW = m_nWidth * 0.5f;
     float halfH = m_nHeight * 0.5f;
-    m_matProj = Ortho(-halfW, halfW, halfH, -halfH, m_nNear, m_nFar);
+    m_matProj = Ortho(-halfW, halfW, halfH, -halfH, zNear, zFar);
     m_nProjectionMode = 1;
 }
  
@@ -175,16 +177,16 @@ Frustum Camera::GetFrustum()
     result.left.normal   = col4 + col1;
     result.right.normal  = col4 - col1;
     result.bottom.normal = col4 + col2;
-    result.top.normal    = col4 - col1;
-    result.near.normal   = col3;
-    result.far.normal    = col4 - col3;
+    result.top.normal    = col4 - col2;
+    result._near.normal   = col3;
+    result._far.normal    = col4 - col3;
 
     result.left.distance   = vp._44 + vp._41;
     result.right.distance  = vp._44 - vp._41;
     result.bottom.distance = vp._44 + vp._42;
     result.top.distance    = vp._44 - vp._42;
-    result.near.distance   = vp._43;
-    result.far.distance    = vp._44 - vp._43;
+    result._near.distance   = vp._43;
+    result._far.distance    = vp._44 - vp._43;
 
     for(int i = 0; i < 6; i++)
     {
@@ -214,7 +216,7 @@ void OrbitCamera::Rotate(const vec2& deltaRot, float deltaTime)
     currentRotation.x += deltaRot.y * rotationSpeed.y * zoomDistance *deltaTime;
 
     currentRotation.x = ClampAngle(currentRotation.x, -360.0f, 360.0f);
-    currentRotation.y = ClampAngle(currentRotation.y, -360.0f, 360.0f);
+    currentRotation.y = ClampAngle(currentRotation.y, yRotationLimit.x, yRotationLimit.y);
 }
 
 void OrbitCamera::Zoom(float deltaZoom, float deltaTime)
@@ -235,18 +237,23 @@ void OrbitCamera::Pan(const vec2 deltaPan, float deltaTime)
 {
     vec3 right(m_matWorld._11, m_matWorld._12, m_matWorld._13);
     
-    float xPanMag = deltaPan.x * panSpeed.x * deltaTime;
-    target = target - (right * xPanMag);
+  	target = target - (right * (deltaPan.x * panSpeed.x * deltaTime));
+	target = target + (vec3(0, 1, 0) * (deltaPan.y * panSpeed.y * deltaTime));
 
-    float yPanMag = deltaPan.y * panSpeed.y * deltaTime;
-    target = target + (vec3(0, 1, 0) * yPanMag);
+	float midZoom = zoomDistanceLimit.x + (zoomDistanceLimit.y - zoomDistanceLimit.x) * 0.5f;
+	zoomDistance = midZoom - zoomDistance;
+	vec3 rotation = vec3(currentRotation.y, currentRotation.x, 0);
+	mat3 orient = Rotation3x3(rotation.x, rotation.y, rotation.z);
+	vec3 dir = MultiplyVector( vec3(0.0, 0.0, -zoomDistance), orient);
+	target = target - dir;
+	zoomDistance = midZoom;
 }
 
 void OrbitCamera::Update(float deltaTime)
 {
     vec3 rotation = vec3(currentRotation.x, currentRotation.y, 0);
     mat3 orient = Rotation3x3(rotation.x, rotation.y, rotation.z);
-    vec3 direction = MultiplyVector(vec3(0.0f, 0.0f, 0.0f - zoomDistance), orient);
+    vec3 direction = MultiplyVector(vec3(0.0f, 0.0f, - zoomDistance), orient);
     vec3 position = direction + target;
 
     m_matWorld = Inverse(LookAt(position, target, vec3(0, 1, 0)));
@@ -274,4 +281,31 @@ float OrbitCamera::ClampAngle(float angle, float min, float max)
     }
 
     return angle;
+}
+
+void OrbitCamera::SetTarget(const vec3& newTarget) {
+	target = newTarget;
+}
+
+void OrbitCamera::SetZoom(float zoom) {
+	zoomDistance = zoom;
+}
+
+void OrbitCamera::SetRotation(const vec2& rotation) {
+	currentRotation = rotation;
+}
+
+
+Camera CreatePerspective(float fieldOfView, float aspectRatio, float nearPlane, float farPlane)
+{
+    Camera result;
+    result.Perspective(fieldOfView, aspectRatio, nearPlane, farPlane);
+    return result;
+}
+
+Camera CreateOrtographic(float width, float height, float nearPlane, float farPlane)
+{
+    Camera result;
+    result.Orthographic(width, height, nearPlane, farPlane);
+    return result;
 }

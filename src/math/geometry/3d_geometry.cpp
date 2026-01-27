@@ -85,10 +85,10 @@ Point Intersection(Plane p1, Plane p2, Plane p3)
 
 void GetCorners(const Frustum& frustum, vec3* outCorners)
 {
-    outCorners[0] = Intersection(frustum.near, frustum.top, frustum.left);
-    outCorners[1] = Intersection(frustum.near, frustum.top, frustum.right);
-    outCorners[2] = Intersection(frustum.near, frustum.bottom, frustum.left);
-    outCorners[3] = Intersection(frustum.near, frustum.bottom, frustum.right);
+    outCorners[0] = Intersection(frustum._near, frustum.top, frustum.left);
+    outCorners[1] = Intersection(frustum._near, frustum.top, frustum.right);
+    outCorners[2] = Intersection(frustum._near, frustum.bottom, frustum.left);
+    outCorners[3] = Intersection(frustum._near, frustum.bottom, frustum.right);
     outCorners[4] = Intersection(frustum.top, frustum.top, frustum.left);
     outCorners[5] = Intersection(frustum.top, frustum.top, frustum.right);
     outCorners[6] = Intersection(frustum.top, frustum.bottom, frustum.left);

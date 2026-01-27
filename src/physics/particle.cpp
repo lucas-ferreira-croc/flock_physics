@@ -13,11 +13,12 @@ Particle::Particle()
 
 void Particle::Update(float deltaTime)
 {
-    vec3 velocity = position - oldPosition;
     oldPosition = position;
+    
+    vec3 acceleration = forces * InvMass();
 
-    float deltaSquare = deltaTime * deltaTime;
-    position = position + (velocity * friction + forces * deltaSquare);
+    velocity = velocity * friction + acceleration * deltaTime;
+    position = position + velocity * deltaTime;
 }
 
 void Particle::Render()
@@ -28,7 +29,7 @@ void Particle::Render()
 
 void Particle::ApplyForces()
 {
-    forces = gravity;
+    forces = gravity * mass;
 }
 
 void Particle::SolveConstraints(const std::vector<OBB>& constraints)
@@ -78,3 +79,44 @@ float Particle::GetBounce()
 {
     return bounce;
 }
+
+void Particle::AddImpulse(const vec3& impulse)
+{
+    velocity = velocity + impulse;
+}
+
+float Particle::InvMass()
+{
+    if(mass == 0.0f)
+    {
+        return 0.0f;
+    }
+
+    return 1.0f / mass;
+    
+}
+
+void Particle::SetMass(float m)
+{
+    if(m < 0)
+    {
+        m = 0;
+    }
+    mass = m;
+}
+
+vec3 Particle::GetVelocity()
+{
+    return velocity;
+}
+
+void Particle::SetFriction(float f)
+{
+    if(f < 0)
+    {
+        f = 0;
+    }
+
+    friction = f;
+}
+    

@@ -18,6 +18,12 @@ file(GLOB_RECURSE  sources
     src/physics/physics_system.hpp
     src/physics/particle.hpp
     src/physics/particle.cpp
+    src/physics/spring.hpp
+    src/physics/spring.cpp
+    src/physics/cloth.hpp
+    src/physics/cloth.cpp
+    src/physics/distance_joint.hpp
+    src/physics/distance_joint.cpp
     src/scene.hpp
     src/scene.cpp
     src/camera.hpp

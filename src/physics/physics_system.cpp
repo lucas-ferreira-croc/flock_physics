@@ -158,8 +158,48 @@ void PhysicsSystem::Update(float deltaTime)
         m2->position = m2->position + correction * m2->InvMass();
     }
 
+    for(int i = 0, size = springs.size(); i < size; i++)
+    {
+        springs[i].ApplyForce(deltaTime);
+    }
+
     for(int i = 0, size = bodies.size(); i < size; i++)
     {
         bodies[i]->SolveConstraints(constraints);
     }
+
+    for(int i = 0, size = cloths.size(); i < size; i++)
+    {
+        cloths[i]->Update(deltaTime);
+    }
+
+    for(int i = 0, size = cloths.size(); i < size; i++)
+    {
+        cloths[i]->ApplySpringForces(deltaTime);
+    }
+
+    for(int i = 0, size = cloths.size(); i < size; i++)
+    {
+        cloths[i]->SolveConstraints(constraints);
+    }
+}
+
+void PhysicsSystem::AddSpring(const Spring& spring)
+{
+    springs.push_back(spring);
+}
+
+void PhysicsSystem::ClearSprings()
+{
+    springs.clear();
+}
+
+void PhysicsSystem::AddCloth(Cloth* cloth)
+{
+    cloths.push_back(cloth);
+}
+
+void PhysicsSystem::ClearCloths()
+{
+    cloths.clear();
 }

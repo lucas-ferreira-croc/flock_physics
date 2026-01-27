@@ -16,14 +16,22 @@ public:
     vec3 GetPosition();
     void SetBounce(float b);
     float GetBounce();
+
+    void AddImpulse(const vec3& impulse);
+    float InvMass();
+    void SetMass(float m);
+    vec3 GetVelocity();
+    void SetFriction(float f);
+
 private:
     vec3 position;
     vec3 oldPosition;
     vec3 forces;
-    float mass;
     float bounce;
     vec3 gravity;
     float friction;
+    vec3 velocity;
+    float mass;
 };
 
 #endif
