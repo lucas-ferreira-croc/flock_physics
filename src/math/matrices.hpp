@@ -178,4 +178,25 @@ mat4 LookAt(const vec3& position, const vec3& target, const vec3& up);
 mat4 Projection(float fov, float aspect, float zNear, float zFar);
 mat4 Ortho(float left, float right, float bottomm, float top, float zNear, float zFar);
 
+mat4 ToColumnMajor(const mat4& mat);
+mat3 ToColumnMajor(const mat3& mat);
+mat4 FromColumnMajor(const mat4& mat);
+mat3 FromColumnMajor(const mat3& mat);
+mat4 FromColumnMajor(const float* mat);
+
+mat4 YawPitchRoll(float yaw, float pitch, float roll);
+mat2 Rotation2x2(float angle);
+
+mat4 Orthogonalize(const mat4& mat);
+mat3 Orthogonalize(const mat3& mat);
+
+vec3 Decompose(const mat3& rot1);
+
+mat3 FastInverse(const mat3& mat);
+mat4 FastInverse(const mat4& mat);
+
+mat4 Translate(float x, float y, float z);
+mat4 Translate(const vec3& pos);
+mat4 FromMat3(const mat3& mat);
+
 #endif

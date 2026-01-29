@@ -29,6 +29,16 @@ void RigidbodyVolume::Update(float deltaTime)
     velocity = velocity + acceleration * deltaTime;
     velocity = velocity * damping;
 
+	if (fabsf(velocity.x) < 0.001f) {
+		velocity.x = 0.0f;
+	}
+	if (fabsf(velocity.y) < 0.001f) {
+		velocity.y = 0.0f;
+	}
+	if (fabsf(velocity.z) < 0.001f) {
+		velocity.z = 0.0f;
+	}
+
     if(type == RIGIDBODY_TYPE_BOX)
     {
         vec3 angularAcceleration = MultiplyVector(torques, InvTensor());
@@ -82,11 +92,11 @@ CollisionManifold FindCollisionFeatures(RigidbodyVolume& rigidbodyA, RigidbodyVo
     {
         if(rigidbodyB.type == RIGIDBODY_TYPE_SPHERE)
         {
-            result = FindCollisions(rigidbodyA.sphere, rigidbodyB.sphere);       
+            result = FindCollisionFeatures(rigidbodyA.sphere, rigidbodyB.sphere);       
         }
         else if(rigidbodyB.type == RIGIDBODY_TYPE_BOX)
         {
-            result = FindCollisions(rigidbodyB.box, rigidbodyA.sphere);
+            result = FindCollisionFeatures(rigidbodyB.box, rigidbodyA.sphere);
             result.normal = result.normal * -1.0f;
         }
     }
@@ -98,7 +108,7 @@ CollisionManifold FindCollisionFeatures(RigidbodyVolume& rigidbodyA, RigidbodyVo
         }
         else if(rigidbodyB.type == RIGIDBODY_TYPE_SPHERE)
         {
-            result = FindCollisions(rigidbodyA.box, rigidbodyB.sphere);       
+            result = FindCollisionFeatures(rigidbodyA.box, rigidbodyB.sphere);       
         }
     }
     return result;
@@ -106,6 +116,15 @@ CollisionManifold FindCollisionFeatures(RigidbodyVolume& rigidbodyA, RigidbodyVo
 
 mat4 RigidbodyVolume::InvTensor()
 {
+    if (mass == 0) {
+		return mat4(
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0,
+			0, 0, 0, 0
+		);
+	}
+
     float ix = 0.0f;
     float iy = 0.0f;
     float iz = 0.0f;

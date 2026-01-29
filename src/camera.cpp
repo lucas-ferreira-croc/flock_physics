@@ -251,7 +251,7 @@ void OrbitCamera::Pan(const vec2 deltaPan, float deltaTime)
 
 void OrbitCamera::Update(float deltaTime)
 {
-    vec3 rotation = vec3(currentRotation.x, currentRotation.y, 0);
+    vec3 rotation = vec3(currentRotation.y, currentRotation.x, 0);
     mat3 orient = Rotation3x3(rotation.x, rotation.y, rotation.z);
     vec3 direction = MultiplyVector(vec3(0.0f, 0.0f, - zoomDistance), orient);
     vec3 position = direction + target;

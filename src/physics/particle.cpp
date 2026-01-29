@@ -34,30 +34,29 @@ void Particle::ApplyForces()
 
 void Particle::SolveConstraints(const std::vector<OBB>& constraints)
 {
-    int size = constraints.size();
-    for(int i = 0; i < size; i++)
-    {
-        Line traveled(oldPosition, position);
-        if(Linetest(constraints[i], traveled))
-        {
-            vec3 velocity = position - oldPosition;
-            vec3 direction = Normalized(velocity);
+	int size = constraints.size();
+	for (int i = 0; i < size; i++)
+	{
+		Line traveled(oldPosition, position);
+		if (Linetest(constraints[i], traveled)) {
+		
+			vec3 direction = Normalized(velocity);
+			Ray ray(oldPosition, direction);
+			RaycastResult result;
 
-            Ray ray(oldPosition, direction);
-            RaycastResult result;
+			if (Raycast(constraints[i], ray, &result))
+			{
+				position = result.point + result.normal * 0.003f;
 
-            if(Raycast(constraints[i], ray, &result))
-            {
-                position = result.point + result.normal * 0.003f;
+				vec3 vn = result.normal * Dot(result.normal, velocity);
+				vec3 vt = velocity - vn;
 
-                vec3 vn = result.normal * Dot(result.normal, velocity);
-                vec3 vt = velocity - vn;
-
-                oldPosition = position -(vt - vn * bounce);
-                break; //optional
-            }
-        }
-    }
+				oldPosition = position;
+				velocity = vt - vn * bounce;
+				break;
+			}
+		}
+	}
 }
 
 void Particle::SetPosition(const vec3& pos)

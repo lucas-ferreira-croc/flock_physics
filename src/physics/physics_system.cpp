@@ -1,10 +1,6 @@
 #include "physics_system.hpp"
 #include "rigidbody_volume.hpp"
 
-#include "../repo/Code/FixedFunctionPrimitives.h"
-#include "../repo/Code/glad/glad.h"
-
-
 PhysicsSystem::PhysicsSystem()
 {
     LinearProjectionPercent = 0.45f;
@@ -16,7 +12,7 @@ PhysicsSystem::PhysicsSystem()
     results.reserve(100);
 }
 
-void PhysicsSystem::AddRigidBody(Rigidbody* body)
+void PhysicsSystem::AddRigidbody(Rigidbody* body)
 {
     bodies.push_back(body);
 }
@@ -26,7 +22,7 @@ void PhysicsSystem::AddConstraint(const OBB& obb)
     constraints.push_back(obb);
 }
 
-void PhysicsSystem::ClearRigidBodies()
+void PhysicsSystem::ClearRigidbodys()
 {
     bodies.clear();
 }
@@ -38,39 +34,39 @@ void PhysicsSystem::ClearConstraints()
     
 void PhysicsSystem::Render()
 {
-    static const float rigidbodyDiffuse[]
-    {
-        200.0f/255.0f, 0.0f, 0.0f, 0.0f 
-    };
+    // static const float rigidbodyDiffuse[]
+    // {
+    //     200.0f/255.0f, 0.0f, 0.0f, 0.0f 
+    // };
     
-    static const float rigidbodyAmbient[]
-    {
-        200.0f/255.0f, 50.0f/255.0f, 50.0f/255.0f, 0.0f
-    };
+    // static const float rigidbodyAmbient[]
+    // {
+    //     200.0f/255.0f, 50.0f/255.0f, 50.0f/255.0f, 0.0f
+    // };
     
-    static const float constraintDiffuse[]
-    {
-    0.0f, 200.0f/255.0f, 0.0f, 0.0f
-    };
+    // static const float constraintDiffuse[]
+    // {
+    // 0.0f, 200.0f/255.0f, 0.0f, 0.0f
+    // };
 
-    static const float constraintAmbient[]
-    {
-        50.0f/255.0f, 200.0f/255.0f, 50.0f/255.0f, 0.0f
-    };
+    // static const float constraintAmbient[]
+    // {
+    //     50.0f/255.0f, 200.0f/255.0f, 50.0f/255.0f, 0.0f
+    // };
     
-    static const float zero[] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    // static const float zero[] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
-    glColor3f(rigidbodyDiffuse[0],
-    rigidbodyDiffuse[1],
-    rigidbodyDiffuse[2]);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, rigidbodyAmbient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, rigidbodyDiffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, zero);
+    // glColor3f(rigidbodyDiffuse[0],
+    // rigidbodyDiffuse[1],
+    // rigidbodyDiffuse[2]);
+    // glLightfv(GL_LIGHT0, GL_AMBIENT, rigidbodyAmbient);
+    // glLightfv(GL_LIGHT0, GL_DIFFUSE, rigidbodyDiffuse);
+    // glLightfv(GL_LIGHT0, GL_SPECULAR, zero);
 
-    for(int i = 0; i < constraints.size(); i++)
-    {
-        ::Render(constraints[i]);
-    }
+    // for(int i = 0; i < constraints.size(); i++)
+    // {
+    //     ::Render(constraints[i]);
+    // }
 }
 
 void PhysicsSystem::Update(float deltaTime)
@@ -111,6 +107,11 @@ void PhysicsSystem::Update(float deltaTime)
         bodies[i]->ApplyForces();
     }
 
+    for(int i = 0, size = cloths.size(); i < size; i++)
+    {
+        cloths[i]->ApplyForces();
+    }
+
     for(int k = 0; k < ImpulseIteration; ++k)
     {
         for(int i = 0; i < results.size(); i++)
@@ -133,6 +134,12 @@ void PhysicsSystem::Update(float deltaTime)
     {
         bodies[i]->Update(deltaTime);
     }
+
+    for(int i = 0, size = cloths.size(); i < size; i++)
+    {
+        cloths[i]->Update(deltaTime);
+    }
+
 
     for(int i = 0, size = results.size(); i < size; i++)
     {
@@ -163,21 +170,17 @@ void PhysicsSystem::Update(float deltaTime)
         springs[i].ApplyForce(deltaTime);
     }
 
-    for(int i = 0, size = bodies.size(); i < size; i++)
-    {
-        bodies[i]->SolveConstraints(constraints);
-    }
-
-    for(int i = 0, size = cloths.size(); i < size; i++)
-    {
-        cloths[i]->Update(deltaTime);
-    }
-
     for(int i = 0, size = cloths.size(); i < size; i++)
     {
         cloths[i]->ApplySpringForces(deltaTime);
     }
 
+
+    for(int i = 0, size = bodies.size(); i < size; i++)
+    {
+        bodies[i]->SolveConstraints(constraints);
+    }
+ 
     for(int i = 0, size = cloths.size(); i < size; i++)
     {
         cloths[i]->SolveConstraints(constraints);

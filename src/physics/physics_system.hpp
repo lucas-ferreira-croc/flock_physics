@@ -14,10 +14,10 @@ public:
     void Update(float deltaTime);
     void Render();
 
-    void AddRigidBody(Rigidbody* body);
+    void AddRigidbody(Rigidbody* body);
     void AddConstraint(const OBB& obb);
 
-    void ClearRigidBodies();
+    void ClearRigidbodys();
     void ClearConstraints();
 
     void AddSpring(const Spring& spring);
@@ -38,6 +38,10 @@ protected:
     float LinearProjectionPercent;
     float PenetrationSlack;
     int ImpulseIteration;
+
+    bool DebugRender;   
+	bool DoLinearProjection;
+	bool RenderRandomColors;
 };
 
 #endif

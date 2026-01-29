@@ -612,3 +612,181 @@ mat4 Ortho(float left, float right, float bottomm, float top, float zNear, float
         _41, _42, _43, 1.0f
     );
 }
+
+mat4 ToColumnMajor(const mat4& mat)
+{
+    return Transpose(mat);
+}
+
+mat3 ToColumnMajor(const mat3& mat)
+{
+    return Transpose(mat);
+}
+
+mat4 FromColumnMajor(const mat4& mat)
+{
+    return Transpose(mat);
+}
+
+mat3 FromColumnMajor(const mat3& mat)
+{
+    return Transpose(mat);
+}
+
+mat4 FromColumnMajor(const float* mat)
+{
+    return Transpose(mat4(
+        mat[0],  mat[1],  mat[2],  mat[3],
+        mat[4],  mat[5],  mat[6],  mat[7],
+        mat[8],  mat[9],  mat[10], mat[11],
+        mat[12], mat[13], mat[14], mat[15]
+    ));
+}
+
+mat4 YawPitchRoll(float yaw, float pitch, float roll)
+{
+    yaw = DEG2RAD(yaw);
+    pitch = DEG2RAD(pitch);
+    roll = DEG2RAD(roll);
+
+    mat4 out; // z * x * y
+	out._11 = (cosf(roll) * cosf(yaw)) + (sinf(roll) * sinf(pitch) * sinf(yaw));
+	out._12 = (sinf(roll) * cosf(pitch));
+	out._13 = (cosf(roll) * -sinf(yaw)) + (sinf(roll) * sinf(pitch) * cosf(yaw));
+	out._21 = (-sinf(roll) * cosf(yaw)) + (cosf(roll) * sinf(pitch) * sinf(yaw));
+	out._22 = (cosf(roll) * cosf(pitch));
+	out._23 = (sinf(roll) * sinf(yaw)) + (cosf(roll) * sinf(pitch) * cosf(yaw));
+	out._31 = (cosf(pitch) * sinf(yaw));
+	out._32 = -sinf(pitch);
+	out._33 = (cosf(pitch) * cosf(yaw));
+	out._44 = 1;
+	return out;
+}
+
+mat2 Rotation2x2(float angle)
+{
+    return mat2(
+        cosf(angle), sinf(angle),
+        -sinf(angle), cosf(angle)
+    );
+}
+
+mat4 Orthogonalize(const mat4& mat)
+{
+    vec3 xAxis(mat._11, mat._12, mat._13);
+    vec3 yAxis(mat._21, mat._22, mat._23);
+    vec3 zAxis = Cross(xAxis, yAxis);
+
+    xAxis = Cross(yAxis, zAxis);
+    yAxis = Cross(zAxis, xAxis);
+    zAxis = Cross(xAxis, yAxis);
+
+    return mat4(
+        xAxis.x, xAxis.y, xAxis.z, mat._14,
+        yAxis.x, yAxis.y, yAxis.z, mat._24,
+        zAxis.x, zAxis.y, zAxis.z, mat._34,
+        mat._41, mat._42, mat._43, mat._44
+    );
+}
+
+mat3 Orthogonalize(const mat3& mat)
+{
+    vec3 xAxis(mat._11, mat._12, mat._13);
+	vec3 yAxis(mat._21, mat._22, mat._23);
+	vec3 zAxis = Cross(xAxis, yAxis);
+
+	xAxis = Cross(yAxis, zAxis);
+	yAxis = Cross(zAxis, xAxis);
+	zAxis = Cross(xAxis, yAxis);
+
+	return mat3(
+		xAxis.x, xAxis.y, xAxis.z,
+		yAxis.x, yAxis.y, yAxis.z,
+		zAxis.x, zAxis.y, zAxis.z
+	);
+}
+
+vec3 Decompose(const mat3& rot1)
+{
+    mat3 rotation = Transpose(rot1);
+    float sy = sqrt(rotation ._11 * rotation ._11 + rotation ._21 * rotation ._21);
+    
+    bool singular = sy < 1e-6f;
+    
+    float x, y, z;
+	if (!singular) {
+		x = atan2(rotation._32, rotation._33);
+		y = atan2(-rotation._31, sy);
+		z = atan2(rotation._21, rotation._11);
+	}
+	else {
+		x = atan2(-rotation._23, rotation._22);
+		y = atan2(-rotation._31, sy);
+		z = 0;
+	}
+
+	return vec3(x, y, z);
+}
+
+mat3 FastInverse(const mat3& mat)
+{
+    return Transpose(mat);
+}
+
+mat4 FastInverse(const mat4& mat)
+{
+    mat4 inverse = Transpose(mat);
+    inverse._41 = inverse._14 = 0.0f;
+    inverse._42 = inverse._24 = 0.0f;
+    inverse._43 = inverse._34 = 0.0f;
+
+    vec3 right =	vec3(mat._11, mat._12, mat._13);
+	vec3 up =		vec3(mat._21, mat._22, mat._23);
+	vec3 forward =	vec3(mat._31, mat._32, mat._33);
+	vec3 position = vec3(mat._41, mat._42, mat._43);
+
+	inverse._41 = -Dot(right, position);
+	inverse._42 = -Dot(up, position);
+	inverse._43 = -Dot(forward, position);
+
+    return inverse;
+}
+
+mat4 Translate(float x, float y, float z)
+{
+    return mat4(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        x, y, z, 1.0f
+    );
+}
+
+mat4 Translate(const vec3& pos)
+{
+    return mat4(
+        1.0f, 0.0f, 0.0f, 0.0f,
+        0.0f, 1.0f, 0.0f, 0.0f,
+        0.0f, 0.0f, 1.0f, 0.0f,
+        pos.x, pos.y, pos.z, 1.0f
+    );
+}
+
+mat4 FromMat3(const mat3& mat)
+{
+    mat4 result;
+
+    result._11 = mat._11;
+	result._12 = mat._12;
+	result._13 = mat._13;
+
+	result._21 = mat._21;
+	result._22 = mat._22;
+	result._23 = mat._23;
+
+	result._31 = mat._31;
+	result._32 = mat._32;
+	result._33 = mat._33;
+
+	return result;
+}
