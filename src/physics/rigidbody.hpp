@@ -4,33 +4,37 @@
 #include <vector>
 #include "../math/geometry/3d_geometry.hpp"
 
-#define RIGIDBODY_TYPE_BASE     0
+#define RIGIDBODY_TYPE_BASE 0
 #define RIGIDBODY_TYPE_PARTICLE 1
-#define RIGIDBODY_TYPE_SPHERE   2
-#define RIGIDBODY_TYPE_BOX      3  
+#define RIGIDBODY_TYPE_SPHERE 2
+#define RIGIDBODY_TYPE_BOX 3
 
-class Rigidbody
+namespace Physics
 {
-public:
-    int type;
-
-    inline Rigidbody()
+    class Rigidbody
     {
-        type = RIGIDBODY_TYPE_BASE;
-    }
+    public:
+        int type;
 
-    inline bool HasVolume() 
-    {
-        return type == RIGIDBODY_TYPE_SPHERE ||
-               type == RIGIDBODY_TYPE_BOX;
-    }
+        inline Rigidbody()
+        {
+            type = RIGIDBODY_TYPE_BASE;
+        }
 
-    virtual ~Rigidbody() {}
+        inline bool HasVolume()
+        {
+            return type == RIGIDBODY_TYPE_SPHERE ||
+                   type == RIGIDBODY_TYPE_BOX;
+        }
 
-    virtual void Update(float deltaTime) {}
-    virtual void Render() {}
-    virtual void ApplyForces() {}
-    virtual void SolveConstraints(const std::vector<OBB>& constraints) {}
-};
+        virtual ~Rigidbody() {}
+
+        virtual void Update(float deltaTime) {}
+        virtual void Render() {}
+        virtual void ApplyForces() {}
+        virtual void SolveConstraints(const std::vector<OBB> &constraints) {}
+    };
+
+}
 
 #endif

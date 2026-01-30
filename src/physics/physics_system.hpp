@@ -5,43 +5,47 @@
 #include "spring.hpp"
 #include "cloth.hpp"
 
-class PhysicsSystem
+namespace Physics
 {
-public:
+    class PhysicsSystem
+    {
+    public:
+        PhysicsSystem();
 
-    PhysicsSystem();
+        void Update(float deltaTime);
+        void Render();
 
-    void Update(float deltaTime);
-    void Render();
+        void AddRigidbody(Rigidbody *body);
+        void AddConstraint(const OBB &obb);
 
-    void AddRigidbody(Rigidbody* body);
-    void AddConstraint(const OBB& obb);
+        void ClearRigidbodys();
+        void ClearConstraints();
 
-    void ClearRigidbodys();
-    void ClearConstraints();
+        void AddSpring(const Spring &spring);
+        void ClearSprings();
 
-    void AddSpring(const Spring& spring);
-    void ClearSprings();
-    
-    void AddCloth(Cloth* cloth);
-    void ClearCloths();
-protected:
-    std::vector<Rigidbody*> bodies;
-    std::vector<OBB> constraints;
-    std::vector<Spring> springs;
-    std::vector<Cloth*> cloths;
+        void AddCloth(Cloth *cloth);
+        void ClearCloths();
 
-    std::vector<Rigidbody*> colliders1;
-    std::vector<Rigidbody*> colliders2;
-    std::vector<CollisionManifold> results;
-    
-    float LinearProjectionPercent;
-    float PenetrationSlack;
-    int ImpulseIteration;
+        float LinearProjectionPercent;
+        float PenetrationSlack;
+        int ImpulseIteration;
+    protected:
+        std::vector<Rigidbody *> bodies;
+        std::vector<OBB> constraints;
+        std::vector<Spring> springs;
+        std::vector<Cloth *> cloths;
 
-    bool DebugRender;   
-	bool DoLinearProjection;
-	bool RenderRandomColors;
-};
+        std::vector<Rigidbody *> colliders1;
+        std::vector<Rigidbody *> colliders2;
+        std::vector<CollisionManifold> results;
+
+   
+
+        bool DebugRender;
+        bool DoLinearProjection;
+        bool RenderRandomColors;
+    };
+}
 
 #endif

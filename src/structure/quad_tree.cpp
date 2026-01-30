@@ -1,245 +1,240 @@
 #include "quad_tree.hpp"
 #include <queue>
 
-int QuadTree::maxDepth = 5;
-int QuadTree::maxObjectsPerNode = 15;
-
-bool QuadTree::IsLeaf()
+namespace Physics
 {
-    return children.size() == 0;
-}
+    int QuadTree::maxDepth = 5;
+    int QuadTree::maxObjectsPerNode = 15;
 
-int QuadTree::NumObjects()
-{
-    Reset();
-    int objectCount = contents.size();
-    for(int i = 0, size = contents.size(); i < size; ++i)
+    bool QuadTree::IsLeaf()
     {
-        contents[i]->flag = true;
+        return children.size() == 0;
     }
 
-    std::queue<QuadTreeNode*> process;
-    process.push(this);
-
-    while(process.size() > 0)
+    int QuadTree::NumObjects()
     {
-        QuadTreeNode* processing = process.back();
-
-        if(!processing->IsLeaf())
+        Reset();
+        int objectCount = contents.size();
+        for (int i = 0, size = contents.size(); i < size; ++i)
         {
-            for(int i = 0, size = processing->children.size(); i < size; ++i)
-            {
-                process.push(&processing->children[i]);
-            }
+            contents[i]->flag = true;
         }
-        else
+
+        std::queue<QuadTreeNode *> process;
+        process.push(this);
+
+        while (process.size() > 0)
         {
-            for(int i = 0, size = processing->contents.size(); i < size; ++i)
+            QuadTreeNode *processing = process.back();
+
+            if (!processing->IsLeaf())
             {
-                if(!processing->contents[i]->flag)
+                for (int i = 0, size = processing->children.size(); i < size; ++i)
                 {
-                    objectCount += 1;
-                    processing->contents[i]->flag = true;
+                    process.push(&processing->children[i]);
                 }
             }
-        }
-        process.pop();
-    }
-    Reset();
-    return objectCount;
-}
-
-void QuadTree::Insert(QuadTreeData& data)
-{
-    if(!RectangleRectangle(data.bounds, nodeBounds))
-    {
-        return;
-    } 
-
-    if(IsLeaf() && contents.size() + 1 > maxObjectsPerNode)
-    {
-        Split();
-    }
-
-    if(IsLeaf())
-    {
-        contents.push_back(&data);
-    }
-    else
-    {
-        for(int i = 0, size = children.size(); i < size; i++)
-        {
-            children[i].Insert(data);
-        }
-    }
-}
-
-void QuadTree::Remove(QuadTreeData& data)
-{
-    if(IsLeaf()) 
-    {
-        int removeIndex = -1;
-        for(int i = 0, size = contents.size(); i < size; i++)
-        {
-            if(contents[i]->object == data.object)
+            else
             {
-                removeIndex = i;   
-                break;
-            }
-        }
-        if(removeIndex != -1)
-        {
-            contents.erase(contents.begin() + 1);
-        }
-        else
-        {
-            for(int i = 0, size = children.size(); i < size; i++)
-            {
-                children[i].Remove(data);
-            }
-        }
-        Shake();
-    }
-}
-
-void QuadTree::Update(QuadTreeData& data)
-{
-    Remove(data);
-    Insert(data);
-}
-void QuadTree::Reset()
-{
-    if(IsLeaf()) 
-    {
-        for(int i = 0, size = contents.size(); i < size; i++)
-        {
-            contents[i]->flag = false;
-        }
-    }
-    else{
-        for(int i = 0, size = children.size(); i < size; i++)
-        {
-            children[i].Reset();
-        }   
-    }
-}
-
-void QuadTree::Shake()
-{
-    if(!IsLeaf())
-    {
-        int numObjects = NumObjects();
-        if(numObjects == 0)
-        {
-            children.clear();
-        }
-        else if(numObjects < maxObjectsPerNode)
-        {
-            std::queue<QuadTreeNode*> process;
-            process.push(this);
-
-            while(process.size() > 0)
-            {
-                QuadTreeNode* processing = process.back();
-                if(!processing->IsLeaf())
+                for (int i = 0, size = processing->contents.size(); i < size; ++i)
                 {
-                    for(int i = 0, size = processing->children.size(); i < size; i++)
+                    if (!processing->contents[i]->flag)
                     {
-                        process.push(&processing->children[i]);
+                        objectCount += 1;
+                        processing->contents[i]->flag = true;
                     }
                 }
-                else
-                {
-                    contents.insert(contents.end(),
-                        processing->contents.begin(), processing->contents.end()
-                    );
-                }
-                process.pop();
             }
-            children.clear();
+            process.pop();
+        }
+        Reset();
+        return objectCount;
+    }
+
+    void QuadTree::Insert(QuadTreeData &data)
+    {
+        if (!RectangleRectangle(data.bounds, nodeBounds))
+        {
+            return;
+        }
+
+        if (IsLeaf() && contents.size() + 1 > maxObjectsPerNode)
+        {
+            Split();
+        }
+
+        if (IsLeaf())
+        {
+            contents.push_back(&data);
+        }
+        else
+        {
+            for (int i = 0, size = children.size(); i < size; i++)
+            {
+                children[i].Insert(data);
+            }
         }
     }
-}
 
-void QuadTree::Split()
-{
-    if(currentDepth + 1 >= maxDepth)
+    void QuadTree::Remove(QuadTreeData &data)
     {
-        return;
+        if (IsLeaf())
+        {
+            int removeIndex = -1;
+            for (int i = 0, size = contents.size(); i < size; i++)
+            {
+                if (contents[i]->object == data.object)
+                {
+                    removeIndex = i;
+                    break;
+                }
+            }
+            if (removeIndex != -1)
+            {
+                contents.erase(contents.begin() + 1);
+            }
+            else
+            {
+                for (int i = 0, size = children.size(); i < size; i++)
+                {
+                    children[i].Remove(data);
+                }
+            }
+            Shake();
+        }
     }
 
-    vec2 min = GetMin(nodeBounds);
-    vec2 max = GetMax(nodeBounds);
-    vec2 center = min + ((max - min) * 0.5f);
-
-    Rectangle2D childAreas[] = {
-        Rectangle2D(
-            FromMinMax(
-                vec2(min.x, min.y),
-                vec2(center.x, center.y)
-            )
-        ),
-        Rectangle2D(
-            FromMinMax(
-                vec2(center.x, min.y),
-                vec2(max.x, center.y)
-            )
-        ),
-        Rectangle2D(
-            FromMinMax(
-                vec2(center.x, center.y),
-                vec2(max.x, max.y)
-            )
-        ),
-        Rectangle2D(
-            FromMinMax(
-                vec2(min.x, center.y),
-                vec2(center.x, max.y)
-            )
-        ),
-    };
-
-    for(int i = 0; i < 4; i++)
+    void QuadTree::Update(QuadTreeData &data)
     {
-        children.push_back(QuadTreeNode(childAreas[i]));
-        children[i].currentDepth = currentDepth + 1;
+        Remove(data);
+        Insert(data);
+    }
+    void QuadTree::Reset()
+    {
+        if (IsLeaf())
+        {
+            for (int i = 0, size = contents.size(); i < size; i++)
+            {
+                contents[i]->flag = false;
+            }
+        }
+        else
+        {
+            for (int i = 0, size = children.size(); i < size; i++)
+            {
+                children[i].Reset();
+            }
+        }
     }
 
-    for(int i = 0, size = contents.size(); i < size; i++)
+    void QuadTree::Shake()
     {
-        children[i].Insert(*contents[i]);
-    }
-    contents.clear();
-}
+        if (!IsLeaf())
+        {
+            int numObjects = NumObjects();
+            if (numObjects == 0)
+            {
+                children.clear();
+            }
+            else if (numObjects < maxObjectsPerNode)
+            {
+                std::queue<QuadTreeNode *> process;
+                process.push(this);
 
-std::vector<QuadTreeData*> QuadTree::Query(const Rectangle2D& area)
-{
-    std::vector<QuadTreeData*> result;
-    if(!RectangleRectangle(area, nodeBounds))
-    {   
+                while (process.size() > 0)
+                {
+                    QuadTreeNode *processing = process.back();
+                    if (!processing->IsLeaf())
+                    {
+                        for (int i = 0, size = processing->children.size(); i < size; i++)
+                        {
+                            process.push(&processing->children[i]);
+                        }
+                    }
+                    else
+                    {
+                        contents.insert(contents.end(),
+                                        processing->contents.begin(), processing->contents.end());
+                    }
+                    process.pop();
+                }
+                children.clear();
+            }
+        }
+    }
+
+    void QuadTree::Split()
+    {
+        if (currentDepth + 1 >= maxDepth)
+        {
+            return;
+        }
+
+        vec2 min = GetMin(nodeBounds);
+        vec2 max = GetMax(nodeBounds);
+        vec2 center = min + ((max - min) * 0.5f);
+
+        Rectangle2D childAreas[] = {
+            Rectangle2D(
+                FromMinMax(
+                    vec2(min.x, min.y),
+                    vec2(center.x, center.y))),
+            Rectangle2D(
+                FromMinMax(
+                    vec2(center.x, min.y),
+                    vec2(max.x, center.y))),
+            Rectangle2D(
+                FromMinMax(
+                    vec2(center.x, center.y),
+                    vec2(max.x, max.y))),
+            Rectangle2D(
+                FromMinMax(
+                    vec2(min.x, center.y),
+                    vec2(center.x, max.y))),
+        };
+
+        for (int i = 0; i < 4; i++)
+        {
+            children.push_back(QuadTreeNode(childAreas[i]));
+            children[i].currentDepth = currentDepth + 1;
+        }
+
+        for (int i = 0, size = contents.size(); i < size; i++)
+        {
+            children[i].Insert(*contents[i]);
+        }
+        contents.clear();
+    }
+
+    std::vector<QuadTreeData *> QuadTree::Query(const Rectangle2D &area)
+    {
+        std::vector<QuadTreeData *> result;
+        if (!RectangleRectangle(area, nodeBounds))
+        {
+            return result;
+        }
+
+        if (IsLeaf())
+        {
+            for (int i = 0, size = contents.size(); i < size; i++)
+            {
+                if (RectangleRectangle(contents[i]->bounds, area))
+                {
+                    result.push_back(contents[i]);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0, size = children.size(); i < size; i++)
+            {
+                std::vector<QuadTreeData *> recurse = children[i].Query(area);
+                if (recurse.size() > 0)
+                {
+                    result.insert(result.end(), recurse.begin(), recurse.end());
+                }
+            }
+        }
         return result;
     }
-
-    if(IsLeaf())
-    {
-        for(int i = 0, size = contents.size(); i < size; i++)
-        {
-            if(RectangleRectangle(contents[i]->bounds, area))
-            {
-                result.push_back(contents[i]);
-            }
-        }
-    }
-    else
-    {
-        for(int i = 0, size = children.size(); i < size; i++)
-        {
-            std::vector<QuadTreeData*> recurse = children[i].Query(area);
-            if(recurse.size() > 0)
-            {
-                result.insert(result.end(), recurse.begin(), recurse.end());
-            }
-        }
-    }
-    return result;
 }

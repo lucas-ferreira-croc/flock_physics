@@ -4,15 +4,15 @@
 #include "../vectors.hpp"
 
 #define PointLine(point, line) \
- PointOnLine(point, line)
+    PointOnLine(point, line)
 #define LinePoint(line, point) \
- PointOnLine(point, line)
+    PointOnLine(point, line)
 #define CircleLine(circle, line) \
- LineCircle(line, circle)
+    LineCircle(line, circle)
 #define RectangleLine(rectangle, line) \
- LineRectangle(line, rectangle);
+    LineRectangle(line, rectangle);
 #define OrientedRectangleLine(rectangle, line) \
- LineOrientedRectangle(line, rectangle);
+    LineOrientedRectangle(line, rectangle);
 
 #define RectangleCircle(rectangle, circle) \
     CircleRectangle(circle, rectangle);
@@ -20,111 +20,109 @@
     CircleOrientedRectangle(circle, rectangle)
 
 #define OrientedRectangleRectangle(oriented, regular) \
- RectangleOrientedRectangle(regular, oriented)
+    RectangleOrientedRectangle(regular, oriented)
 
-typedef vec2 Point2D;
-
-typedef struct Line2D
+namespace Physics
 {
-    Point2D start;
-    Point2D end;
+    typedef vec2 Point2D;
 
-    inline Line2D() {}
-    inline Line2D(const Point2D& s, const Point2D& e)
-        : start(s), end(e) {}
-} Line2D;
+    typedef struct Line2D
+    {
+        Point2D start;
+        Point2D end;
 
-float Length(const Line2D& line);
-float LengthSqr(const Line2D& line);
+        inline Line2D() {}
+        inline Line2D(const Point2D &s, const Point2D &e)
+            : start(s), end(e) {}
+    } Line2D;
 
+    float Length(const Line2D &line);
+    float LengthSqr(const Line2D &line);
 
-typedef struct Circle
-{
-    Point2D position;
-    float radius;
+    typedef struct Circle
+    {
+        Point2D position;
+        float radius;
 
-    inline Circle() : radius(1.0f) {}
-    inline Circle(const Point2D& p, float r) :
-        position(p), radius(r) {}
+        inline Circle() : radius(1.0f) {}
+        inline Circle(const Point2D &p, float r) : position(p), radius(r) {}
 
-} Circle;
+    } Circle;
 
-typedef struct Rectangle2D 
-{
-    Point2D origin;
-    vec2 size;
+    typedef struct Rectangle2D
+    {
+        Point2D origin;
+        vec2 size;
 
-    inline Rectangle2D() : size(1, 1) {}
-    inline Rectangle2D(const Point2D& o, const vec2& s) :
-     origin(o), size(s) {}
+        inline Rectangle2D() : size(1, 1) {}
+        inline Rectangle2D(const Point2D &o, const vec2 &s) : origin(o), size(s) {}
 
-} Rectangle2D;
+    } Rectangle2D;
 
-vec2 GetMin(const Rectangle2D& rect);
-vec2 GetMax(const Rectangle2D& rect);
+    vec2 GetMin(const Rectangle2D &rect);
+    vec2 GetMax(const Rectangle2D &rect);
 
-Rectangle2D FromMinMax(const vec2& min, const vec2& max);
+    Rectangle2D FromMinMax(const vec2 &min, const vec2 &max);
 
-typedef struct OrientedRectangle
-{
-    Point2D position;
-    vec2 halfExtents;
-    float rotation;
+    typedef struct OrientedRectangle
+    {
+        Point2D position;
+        vec2 halfExtents;
+        float rotation;
 
-    inline OrientedRectangle() : halfExtents(1.0f, 1.0f), rotation(0.0f) {}
-    inline OrientedRectangle(const Point2D& p, const vec2& e) : 
-        position(p), halfExtents(e), rotation(0.0f) {}
-    inline OrientedRectangle(const Point2D& pos, const vec2& ext, float rot) : 
-        position(pos), halfExtents(ext), rotation(rot) {}
-} OrientedRectangle;
+        inline OrientedRectangle() : halfExtents(1.0f, 1.0f), rotation(0.0f) {}
+        inline OrientedRectangle(const Point2D &p, const vec2 &e) : position(p), halfExtents(e), rotation(0.0f) {}
+        inline OrientedRectangle(const Point2D &pos, const vec2 &ext, float rot) : position(pos), halfExtents(ext), rotation(rot) {}
+    } OrientedRectangle;
 
-typedef struct BoundingShape 
-{
-    int numCircles;
-    Circle* circles;
-    int numRectangles;
-    Rectangle2D* rectangles;
+    typedef struct BoundingShape
+    {
+        int numCircles;
+        Circle *circles;
+        int numRectangles;
+        Rectangle2D *rectangles;
 
-    inline BoundingShape() :
-        numCircles(0), circles(0),
-        numRectangles(0), rectangles(0) {}
-};
+        inline BoundingShape() : numCircles(0), circles(0),
+                                 numRectangles(0), rectangles(0) {}
+    };
 
-typedef struct Interval2D 
-{
-    float min;
-    float max;
-} Interval2D;
+    typedef struct Interval2D
+    {
+        float min;
+        float max;
+    } Interval2D;
 
-// sat
-Interval2D GetInterval(const Rectangle2D& rect, const vec2& axis);
-bool OverlapOnAxis(const Rectangle2D& rect1, const Rectangle2D& rect2, const vec2& axis);
+    // sat
+    Interval2D GetInterval(const Rectangle2D &rect, const vec2 &axis);
+    bool OverlapOnAxis(const Rectangle2D &rect1, const Rectangle2D &rect2, const vec2 &axis);
 
-Interval2D GetInterval(const OrientedRectangle& rect, const vec2& axis);
-bool OverlapOnAxis(const Rectangle2D& rect1, const OrientedRectangle& rect2, const vec2& axis);
+    Interval2D GetInterval(const OrientedRectangle &rect, const vec2 &axis);
+    bool OverlapOnAxis(const Rectangle2D &rect1, const OrientedRectangle &rect2, const vec2 &axis);
 
-// collision detection
-bool PointOnLine(const Point2D& point, const Line2D& line);
-bool PointInCiricle(const Point2D& point, const Circle& c);
-bool PointInRectangle(const Point2D& point, const Rectangle2D& rectangle);
-bool PointInOrientedRectangle(const Point2D& point, const OrientedRectangle& rectangle);
-bool PointInShape(const BoundingShape& shape, const Point2D& point);
+    // collision detection
+    bool PointOnLine(const Point2D &point, const Line2D &line);
+    bool PointInCiricle(const Point2D &point, const Circle &c);
+    bool PointInRectangle(const Point2D &point, const Rectangle2D &rectangle);
+    bool PointInOrientedRectangle(const Point2D &point, const OrientedRectangle &rectangle);
+    bool PointInShape(const BoundingShape &shape, const Point2D &point);
 
-bool LineCircle(const Line2D& line, const Circle& circle);
-bool LineRectangle(const Line2D& line, const Rectangle2D& rect);
-bool LineOrientedRectangle(const Line2D& line, const OrientedRectangle& rect);
+    bool LineCircle(const Line2D &line, const Circle &circle);
+    bool LineRectangle(const Line2D &line, const Rectangle2D &rect);
+    bool LineOrientedRectangle(const Line2D &line, const OrientedRectangle &rect);
 
-bool CircleCirle(const Circle& c1, const Circle& c2);
-bool CircleRectangle(const Circle& circle, const Rectangle2D& rectangle);
-bool CircleOrientedRectangle(const Circle& circle, const OrientedRectangle& rectangle);
+    bool CircleCirle(const Circle &c1, const Circle &c2);
+    bool CircleRectangle(const Circle &circle, const Rectangle2D &rectangle);
+    bool CircleOrientedRectangle(const Circle &circle, const OrientedRectangle &rectangle);
 
-bool RectangleRectangle(const Rectangle2D& rect1, const Rectangle2D& rect2);
-bool RectangleRectangleSAT(const Rectangle2D& rect1, const Rectangle2D& rect2);
-bool RectangleOrientedRectangle(const Rectangle2D& rect1, const OrientedRectangle& rect2);
+    bool RectangleRectangle(const Rectangle2D &rect1, const Rectangle2D &rect2);
+    bool RectangleRectangleSAT(const Rectangle2D &rect1, const Rectangle2D &rect2);
+    bool RectangleOrientedRectangle(const Rectangle2D &rect1, const OrientedRectangle &rect2);
 
-bool OrientedRectangleOrientedRectangle(const OrientedRectangle& rect1, const OrientedRectangle& rect2);
+    bool OrientedRectangleOrientedRectangle(const OrientedRectangle &rect1, const OrientedRectangle &rect2);
 
-// optimization
-Circle ContainingCircle(Point2D* pArray, int arrayCount);
-Rectangle2D ContainsRectangle(Point2D* pArray, int arrayCount);
+    // optimization
+    Circle ContainingCircle(Point2D *pArray, int arrayCount);
+    Rectangle2D ContainsRectangle(Point2D *pArray, int arrayCount);
+}
+
 #endif

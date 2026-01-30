@@ -4,50 +4,54 @@
 #include "rigidbody.hpp"
 #define GRAVITY_CONST vec3(0.0f, -9.82f, 0.0f)
 
-class RigidbodyVolume : public Rigidbody
+namespace Physics
 {
-public:
-    inline RigidbodyVolume() : 
-        restitution(0.5f), mass(1.0f), friction(0.6f) 
+    class RigidbodyVolume : public Rigidbody
     {
-        type = RIGIDBODY_TYPE_BASE;    
-    }
+    public:
+        inline RigidbodyVolume() : restitution(0.5f), mass(1.0f), friction(0.6f)
+        {
+            type = RIGIDBODY_TYPE_BASE;
+        }
 
-    inline RigidbodyVolume(int bodyType) : 
-        restitution(0.5f), mass(1.0f), friction(0.6f) 
-    {
-        type = bodyType;    
-    }
+        inline RigidbodyVolume(int bodyType) : restitution(0.5f), mass(1.0f), friction(0.6f)
+        {
+            type = bodyType;
+        }
 
-    ~RigidbodyVolume() {}
-    
-    void Update(float deltaTime);
-    void ApplyForces();
-    
-    void SynchCollisionVolumes();
-    float InvMass();
-    void AddLinearImpulse(const vec3& impulse);
-    
-    mat4 InvTensor();
-    virtual void AddRotationImpulse(const vec3& point, const vec3& impulse);
+        ~RigidbodyVolume() {}
+        
+        void Update(float deltaTime);
+        void ApplyForces();
+        
+        void SynchCollisionVolumes();
+        float InvMass();
+        void AddLinearImpulse(const vec3& impulse);
+        
+        mat4 InvTensor();
+        virtual void AddRotationImpulse(const vec3& point, const vec3& impulse);
 
-    /// linear
-    vec3 position;
-    vec3 velocity;
-    vec3 forces;
-    float mass;
-    float restitution;
-    float friction;
-    OBB box;
-    Sphere sphere;
+        void Render();
 
-    /// angular
-    vec3 orientation;
-    vec3 angularVelocity;
-    vec3 torques;
-};
+        /// linear
+        vec3 position;
+        vec3 velocity;
+        vec3 forces;
+        float mass;
+        float restitution;
+        float friction;
+        OBB box;
+        Sphere sphere;
 
-CollisionManifold FindCollisionFeatures(RigidbodyVolume& rigidbodyA, RigidbodyVolume& rigidbodyB);
-void ApplyImpulse(RigidbodyVolume& rigidbodyA, RigidbodyVolume& rigidbodyB, const CollisionManifold& M, int c);
+        /// angular
+        vec3 orientation;
+        vec3 angularVelocity;
+        vec3 torques;
+    };
+
+    CollisionManifold FindCollisionFeatures(RigidbodyVolume &rigidbodyA, RigidbodyVolume &rigidbodyB);
+    void ApplyImpulse(RigidbodyVolume &rigidbodyA, RigidbodyVolume &rigidbodyB, const CollisionManifold &M, int c);
+
+}
 
 #endif
