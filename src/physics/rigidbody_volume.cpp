@@ -238,7 +238,7 @@ void ApplyImpulse(RigidbodyVolume& rigidbodyA, RigidbodyVolume& rigidbodyB, cons
         return;
     }
 
-    float jt = numerator / invMassSum;
+    float jt = (denominator == 0.0) ? 0.0f : numerator / denominator;
     if(M.contacts.size() > 0.0f && jt != 0.0f)
     {
         jt /= (float)M.contacts.size();

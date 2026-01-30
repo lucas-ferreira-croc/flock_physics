@@ -141,7 +141,7 @@ Point ClosestPoint(const OBB& obb, const Point& point) {
 			distance = obb.size.asArray[i];
 		}
 
-		if (distance < obb.size.asArray[i])
+		if (distance < -obb.size.asArray[i])
 		{
 			distance = -obb.size.asArray[i];
 		}
@@ -482,7 +482,7 @@ bool Raycast(const Sphere& sphere, const Ray& ray, RaycastResult* outResult) {
 	float a = Dot(e, ray.direction);
 
 	float bSqr = eSqr - (a * a);
-	float f = sqrt(radiusSqr - bSqr);
+	float f = sqrt(fabsf((radiusSqr) - bSqr));
 
 	float t = a - f;
 	if (radiusSqr - (eSqr - (a * a)) < 0.0f)
@@ -613,12 +613,12 @@ bool Raycast(const AABB& aabb, const Ray& ray, RaycastResult* outResult) {
 	vec3 min = GetMin(aabb);
 	vec3 max = GetMax(aabb);
 
-	float t1 = (min.x - ray.origin.x) / ray.direction.x;
-	float t2 = (max.x - ray.origin.x) / ray.direction.x;
-	float t3 = (min.y - ray.origin.y) / ray.direction.y;
-	float t4 = (max.y - ray.origin.y) / ray.direction.y;
-	float t5 = (min.z - ray.origin.z) / ray.direction.z;
-	float t6 = (max.z - ray.origin.z) / ray.direction.z;
+	float t1 = (min.x - ray.origin.x) / (CMP(ray.direction.x, 0.0f) ? 0.00001f : ray.direction.x);
+	float t2 = (max.x - ray.origin.x) / (CMP(ray.direction.x, 0.0f) ? 0.00001f : ray.direction.x);
+	float t3 = (min.y - ray.origin.y) / (CMP(ray.direction.y, 0.0f) ? 0.00001f : ray.direction.y);
+	float t4 = (max.y - ray.origin.y) / (CMP(ray.direction.y, 0.0f) ? 0.00001f : ray.direction.y);
+	float t5 = (min.z - ray.origin.z) / (CMP(ray.direction.z, 0.0f) ? 0.00001f : ray.direction.z);
+	float t6 = (max.z - ray.origin.z) / (CMP(ray.direction.z, 0.0f) ? 0.00001f : ray.direction.z);
 
 	float tmin = fmaxf(
 		fmaxf(
@@ -2166,8 +2166,8 @@ CollisionManifold FindCollisionFeatures(const OBB& obb, const Sphere& sphere)
 	vec3 normal;
 	if (CMP(distanceSqr, 0.0f))
 	{
-		float magSqr = MagnitudeSqr(closestPoint - obb.position);
-		if (CMP(magSqr, 0.0f))
+		
+		if (CMP(MagnitudeSqr(closestPoint - obb.position), 0.0f))
 		{
 			return result;
 		}

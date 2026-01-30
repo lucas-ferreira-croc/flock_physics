@@ -21,7 +21,6 @@ public:
 
     ~RigidbodyVolume() {}
     
-    void Render();
     void Update(float deltaTime);
     void ApplyForces();
     
