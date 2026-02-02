@@ -2,6 +2,7 @@
 #include <cmath>
 #include <cfloat>
 #include <list>
+#include <iostream>
 
 #define CMP(x, y) \
 	(fabsf(x - y) <= FLT_EPSILON * fmaxf(1.0f, fmaxf(fabsf(x), fabsf(y))))
@@ -152,7 +153,7 @@ namespace Physics
 				distance = obb.size.asArray[i];
 			}
 
-			if (distance < obb.size.asArray[i])
+			if (distance < -obb.size.asArray[i])
 			{
 				distance = -obb.size.asArray[i];
 			}

@@ -1,5 +1,6 @@
 // #include "../repo/Code/FixedFunctionPrimitives.h"
 #include "rigidbody_volume.hpp"
+#include <iostream>
 
 #define CMP(x, y)                       \
     (fabs((x) - (y)) <= FLT_EPSILON *   \
@@ -46,8 +47,17 @@ namespace Physics
         {
             vec3 angularAcceleration = MultiplyVector(torques, InvTensor());
             angularVelocity = angularVelocity + angularAcceleration * deltaTime;
-            ;
             angularVelocity = angularVelocity * damping;
+
+            if (fabsf(angularVelocity.x) < 0.001f) {
+                angularVelocity.x = 0.0f;
+            }
+            if (fabsf(angularVelocity.y) < 0.001f) {
+                angularVelocity.y = 0.0f;
+            }
+            if (fabsf(angularVelocity.z) < 0.001f) {
+                angularVelocity.z = 0.0f;
+            }
         }
 
         position = position + velocity * deltaTime;
@@ -141,7 +151,7 @@ namespace Physics
             iz = r2 * mass * fraction;
             iw = 1.0f;
         }
-        else if (mass != 0.0f && type == RIGIDBODY_TYPE_SPHERE)
+        else if (mass != 0.0f && type == RIGIDBODY_TYPE_BOX)
         {
             vec3 size = box.size * 2.0f;
             float fraction = (1.0f / 12.0f);
@@ -188,7 +198,7 @@ namespace Physics
         mat4 inverseTensor2 = rigidbodyB.InvTensor();
 
         // Relative velocity
-        vec3 relativeVelocity = rigidbodyB.velocity - rigidbodyA.velocity;
+        vec3 relativeVelocity = (rigidbodyB.velocity +  Cross(rigidbodyB.angularVelocity, relative2)) - (rigidbodyA.velocity + Cross(rigidbodyA.angularVelocity, relative1));
         vec3 relativeNormal = M.normal;
         Normalize(relativeNormal);
 

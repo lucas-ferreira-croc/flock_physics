@@ -30,6 +30,8 @@ namespace Physics
         float LinearProjectionPercent;
         float PenetrationSlack;
         int ImpulseIteration;
+        bool DoLinearProjection;
+
     protected:
         std::vector<Rigidbody *> bodies;
         std::vector<OBB> constraints;
@@ -40,10 +42,7 @@ namespace Physics
         std::vector<Rigidbody *> colliders2;
         std::vector<CollisionManifold> results;
 
-   
-
         bool DebugRender;
-        bool DoLinearProjection;
         bool RenderRandomColors;
     };
 }
