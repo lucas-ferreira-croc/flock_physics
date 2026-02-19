@@ -493,7 +493,7 @@ namespace Physics
 		float f = sqrt(fabsf((radiusSqr) - bSqr));
 
 		float t = a - f;
-		if (radiusSqr - (eSqr - a * a) < 0.0f)
+		if (radiusSqr - (eSqr - (a * a)) < 0.0f)
 		{
 			return false;
 		}
