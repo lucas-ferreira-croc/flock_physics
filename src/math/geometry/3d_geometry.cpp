@@ -493,7 +493,7 @@ namespace Physics
 		float f = sqrt(fabsf((radiusSqr) - bSqr));
 
 		float t = a - f;
-		if (radiusSqr - (eSqr - (a * a)) < 0.0f)
+		if (radiusSqr - (eSqr - a * a) < 0.0f)
 		{
 			return false;
 		}
@@ -549,17 +549,8 @@ namespace Physics
 			t[i * 2 + 1] = (e[i] - size[i]) / f[i];
 		}
 
-		float tmin = fmaxf(
-			fmaxf(
-				fminf(t[0], t[1]),
-				fminf(t[2], t[3])),
-			fminf(t[4], t[5]));
-
-		float tmax = fminf(
-			fminf(
-				fmaxf(t[0], t[1]),
-				fmaxf(t[2], t[3])),
-			fmaxf(t[4], t[5]));
+		float tmin = fmaxf(fmaxf(fminf(t[0], t[1]), fminf(t[2], t[3])), fminf(t[4], t[5]));
+		float tmax = fminf(fminf(fmaxf(t[0], t[1]), fmaxf(t[2], t[3])), fmaxf(t[4], t[5]));
 
 		if (tmax < 0)
 		{
@@ -583,9 +574,12 @@ namespace Physics
 			outResult->hit = true;
 			outResult->point = ray.origin + ray.direction * t_result;
 			vec3 normals[] = {
-				X, X * -1.0f,
-				Y, Y * -1.0f,
-				Z, Z * -1.0f};
+				X, 
+				X * -1.0f,
+				Y,
+				Y * -1.0f,
+				Z,
+				Z * -1.0f};
 
 			for (int i = 0; i < 6; i++)
 			{
@@ -1867,10 +1861,10 @@ namespace Physics
 
 		ndcSpace[0] = ndcSpace[0] * 2.0f - 1.0f;
 		ndcSpace[1] = 1.0f - ndcSpace[1] * 2.0f;
-
-		if (ndcSpace[2] < 0.0f)
+		//ndcSpace[2] = ndcSpace[2] * 2.0f - 1.0f;
+		if (ndcSpace[2] < 1.0f)
 		{
-			ndcSpace[2] = 0.0f;
+			ndcSpace[2] = -1.0f;
 		}
 
 		if (ndcSpace[2] > 1.0f)
@@ -1881,11 +1875,11 @@ namespace Physics
 		mat4 invProjection = Inverse(projection);
 		float eyeSpace[4] = {0.0f, 0.0f, 0.0f, 0.0f};
 		// eyeSpace = MultiplyPoint(ndcSpace, invProjection);
-		Multiply(eyeSpace, ndcSpace, 4, 4, invProjection.asArray, 4, 4);
+		Multiply(eyeSpace, ndcSpace, 1, 4, invProjection.asArray, 4, 4);
 
 		mat4 invView = Inverse(view);
 		float worldSpace[4] = {0.0f, 0.0f, 0.0f, 0.0f};
-		Multiply(worldSpace, eyeSpace, 4, 4, invView.asArray, 4, 4);
+		Multiply(worldSpace, eyeSpace, 1, 4, invView.asArray, 4, 4);
 
 		if (!CMP(worldSpace[3], 0.0f))
 		{
